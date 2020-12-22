@@ -55,18 +55,25 @@ export const onStateChangedListener: (
 //   does not raise anything
 export const prepare: () => Promise<void> = NativeModules.RNIpSecVpn.prepare;
 
+export enum VpnType {
+  IKEV2 = "ikev2",
+  IPSec = "ipsec",
+}
+
 // connect to VPN.
 //
 // use given credentials to connect VPN (ikev2-eap).
 // this will create a background VPN service.
 // mtu is only available on android.
-export const connect: (address: string, username: string, password: string, vpnType?: string, mtu?: number) => Promise<void> = (
+export const connect: (address: string, username: string, password: string, vpnType?: VpnType, mtu?: number, sharedSecret?: string, groupName?: string) => Promise<void> = (
   address,
   username,
   password,
   vpnType,
-  mtu
-) => NativeModules.RNIpSecVpn.connect(address || "", username || "", password || "", vpnType || "", mtu || 1400);
+  mtu,
+  sharedSecret,
+  groupName
+) => NativeModules.RNIpSecVpn.connect(address || "", username || "", password || "", vpnType || VpnType, mtu || 1400, sharedSecret || "", groupName || "");
 
 // get current state
 export const getCurrentState: () => Promise<VpnState> = NativeModules.RNIpSecVpn.getCurrentState;

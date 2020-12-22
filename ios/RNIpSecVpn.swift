@@ -96,7 +96,7 @@ class RNIpSecVpn: RCTEventEmitter {
     }
     
     @objc
-    func connect(_ address: NSString, username: NSString, password: NSString, vpnType: NSString, mtu: NSNumber, findEventsWithResolver: @escaping RCTPromiseResolveBlock, rejecter: @escaping RCTPromiseRejectBlock) -> Void {
+    func connect(_ address: NSString, username: NSString, password: NSString, vpnType: NSString, mtu: NSNumber, sharedSecret: NSString, groupName: NSString, findEventsWithResolver: @escaping RCTPromiseResolveBlock, rejecter: @escaping RCTPromiseRejectBlock) -> Void {
         let vpnManager = NEVPNManager.shared()
         let kcs = KeychainService()
 
@@ -105,7 +105,7 @@ class RNIpSecVpn: RCTEventEmitter {
             if error != nil {
                 print("VPN Preferences error: 1")
             } else {
-                let p = NEVPNProtocolIKEv2()
+                let p = vpnType == "ikev2" ? NEVPNProtocolIKEv2() : NEVPNProtocolIPSec()
 
                 p.username = username as String
                 p.remoteIdentifier = address as String
@@ -113,7 +113,20 @@ class RNIpSecVpn: RCTEventEmitter {
 
                 kcs.save(key: "password", value: password as String)
                 p.passwordReference = kcs.load(key: "password")
-                p.authenticationMethod = NEVPNIKEAuthenticationMethod.none
+                
+                if sharedSecret != "" {
+                    p.authenticationMethod = NEVPNIKEAuthenticationMethod.sharedSecret
+                    kcs.save(key: "sharedSecret", value: sharedSecret as String)
+
+                    p.sharedSecretReference = kcs.load(key: "sharedSecret")
+                } else {
+                    p.authenticationMethod = NEVPNIKEAuthenticationMethod.none 
+                }
+
+                if groupName != "" {
+                    p.localIdentifier = groupName as String
+                }
+
 
                 p.useExtendedAuthentication = true
                 p.disconnectOnSleep = false

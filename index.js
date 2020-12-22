@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.disconnect = exports.getCharonErrorState = exports.getCurrentState = exports.connect = exports.prepare = exports.onStateChangedListener = exports.removeOnStateChangeListener = exports.STATE_CHANGED_EVENT_NAME = exports.CharonErrorState = exports.VpnState = void 0;
+exports.disconnect = exports.getCharonErrorState = exports.getCurrentState = exports.connect = exports.VpnType = exports.prepare = exports.onStateChangedListener = exports.removeOnStateChangeListener = exports.STATE_CHANGED_EVENT_NAME = exports.CharonErrorState = exports.VpnState = void 0;
 const react_native_1 = require("react-native");
 var VpnState;
 (function (VpnState) {
@@ -31,7 +31,12 @@ exports.onStateChangedListener = (callback) => {
     return stateChanged.addListener(exports.STATE_CHANGED_EVENT_NAME, (e) => callback(e));
 };
 exports.prepare = react_native_1.NativeModules.RNIpSecVpn.prepare;
-exports.connect = (address, username, password, vpnType, mtu) => react_native_1.NativeModules.RNIpSecVpn.connect(address || "", username || "", password || "", vpnType || "", mtu || 1400);
+var VpnType;
+(function (VpnType) {
+    VpnType["IKEV2"] = "ikev2";
+    VpnType["IPSec"] = "ipsec";
+})(VpnType = exports.VpnType || (exports.VpnType = {}));
+exports.connect = (address, username, password, vpnType, mtu, sharedSecret, groupName) => react_native_1.NativeModules.RNIpSecVpn.connect(address || "", username || "", password || "", vpnType || VpnType, mtu || 1400, sharedSecret || "", groupName || "");
 exports.getCurrentState = react_native_1.NativeModules.RNIpSecVpn.getCurrentState;
 exports.getCharonErrorState = react_native_1.NativeModules.RNIpSecVpn.getCharonErrorState;
 exports.disconnect = react_native_1.NativeModules.RNIpSecVpn.disconnect;
